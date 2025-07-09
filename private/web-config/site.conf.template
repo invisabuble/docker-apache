@@ -1,0 +1,28 @@
+<VirtualHost *:80>
+    ServerName $SERVER_NAME
+    ServerAlias $HOSTNAME.local $HOST_IP
+
+    # Redirect all HTTP traffic to HTTPS
+    Redirect permanent / https://$SERVER_NAME/
+</VirtualHost>
+
+<VirtualHost *:443>
+    DocumentRoot "/var/www/html"
+    ServerName $SERVER_NAME
+    ServerAlias $HOSTNAME.local $HOST_IP
+
+    SSLEngine on
+    SSLCertificateFile "/etc/ssl/certs/overseer.crt"
+    SSLCertificateKeyFile "/etc/ssl/private/overseer.key"
+
+    # Include the CA bundle
+    SSLCertificateChainFile "/etc/ssl/certs/OS_root.crt"
+
+    # Enable HSTS (Optional, for security)
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+    <Directory "/var/www/html">
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>

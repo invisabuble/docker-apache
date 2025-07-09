@@ -1,0 +1,27 @@
+[ req ]
+default_bits       = 4096
+default_md         = sha256
+distinguished_name = dn
+req_extensions     = v3_req
+prompt            = no
+
+[ dn ]
+C  = GB
+ST = England
+L  = Bristol
+O  = Park_Systems
+OU = Engineering
+CN = $SERVER_NAME
+
+[ v3_req ]
+keyUsage = digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = $SERVER_NAME
+DNS.2 = $HOSTNAME.local
+DNS.3 = localhost
+IP.1 = 127.0.0.1
+IP.2 = $HOST_IP
+
