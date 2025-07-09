@@ -7,6 +7,12 @@
 source apache.env
 
 
+# Add the host ip to the apache.env file.
+grep -q "^HOST_IP=" apache.env || echo -e "\nHOST_IP=$(hostname -I | awk '{print $1}')" >> apache.env
+# If no URL is set then set the SERVER_NAME to the HOST_IP otherwise set it to the URL.
+[ "$URL" == "" ] && SERVER_NAME=$HOST_IP || SERVER_NAME=$URL
+
+
 function generate_certs () {
 	# Generate SSL certificates using the MASTER PASSWORD.
 	echo -ne "Generating SSL certificates .";
