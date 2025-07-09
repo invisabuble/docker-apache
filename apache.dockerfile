@@ -11,16 +11,16 @@ RUN apt-get -y update && \
 RUN docker-php-ext-install pdo pdo_mysql
 
 # Copy in the SSL certificates.
-COPY Apache/security/certs/Overseer.key /etc/ssl/private/overseer.key
-COPY Apache/security/certs/Overseer.crt /etc/ssl/certs/overseer.crt
-COPY Apache/security/certs/OS_root.crt  /etc/ssl/certs/OS_root.crt
+COPY ./web/private/certs/SSL-cert.key /etc/ssl/private/SSL-cert.key
+COPY ./web/private/certs/SSL-cert.crt /etc/ssl/certs/SSL-cert.crt
+COPY ./web/private/certs/SSL-root.crt /etc/ssl/certs/SSL-root.crt
 
-# Copy in the frontends configuration.
-COPY Apache/web/private/config/Overseer.conf /etc/apache2/sites-available/overseer.conf
+# Copy in the site configuration.
+COPY ./web/private/web-config/site.conf /etc/apache2/sites-available/site.conf
 
 # Enable the site and SSL.
 RUN a2enmod ssl && \
     a2enmod headers && \
     a2enmod rewrite && \
     a2dissite 000-default default-ssl && \
-    a2ensite overseer
+    a2ensite site
