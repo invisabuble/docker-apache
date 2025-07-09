@@ -4,11 +4,13 @@
 # Setup the SSL certificates for the apache webserver allowing the user to connect via https.
 
 
+# Add the host ip to the apache.env file.
+grep -q "^HOST_IP=" apache.env || echo -e "\nHOST_IP=$(hostname -I | awk '{print $1}')" >> apache.env
+
+
 source apache.env
 
 
-# Add the host ip to the apache.env file.
-grep -q "^HOST_IP=" apache.env || echo -e "\nHOST_IP=$(hostname -I | awk '{print $1}')" >> apache.env
 # If no URL is set then set the SERVER_NAME to the HOST_IP otherwise set it to the URL.
 [ "$URL" == "" ] && SERVER_NAME=$HOST_IP || SERVER_NAME=$URL
 
@@ -55,6 +57,9 @@ if [ ! -f ${CERT_DIR}/SSL-cert.key ] || [ ! -f ${CERT_DIR}/SSL-cert.crt ]; then
     # Create SSL certificate cnf, ext files from the templates.
 	populate ${CERT_TEMPLATES}SSL-cert.cnf.template ${CERT_DIR}SSL-cert.cnf
 	populate ${CERT_TEMPLATES}SSL-cert.ext.template ${CERT_DIR}SSL-cert.ext
+
+    # Create the site config from the template
+    populate ${WEB_CONF_DIR}site.conf.template ${WEB_CONF_DIR}site.conf
 
     # Generate the .crt and .key certificates for SSL
 	generate_certs
