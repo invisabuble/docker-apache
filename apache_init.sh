@@ -41,14 +41,14 @@ function populate () {
 if [ ! -d ${CERT_DIR} ]; then
     # Create the certificate directory and copy the SSL-root.cnf to it.
     mkdir ${CERT_DIR}
-    cp ${CERT_TEMPLATES}/SSL-root.cnf ${CERT_DIR}/SSL-root.cnf
+    cp ${CERT_TEMPLATES}SSL-root.cnf ${CERT_DIR}SSL-root.cnf
 fi
 
 if [ ! -f ${CERT_DIR}/SSL-cert.key ] || [ ! -f ${CERT_DIR}/SSL-cert.crt ]; then
 
     # Create SSL certificate cnf, ext files from the templates.
-	populate ${CERT_TEMPLATES}/SSL-cert.cnf.template ${CERT_DIR}/SSL-cert.cnf
-	populate ${CERT_TEMPLATES}/SSL-cert.ext.template ${CERT_DIR}/SSL-cert.ext
+	populate ${CERT_TEMPLATES}SSL-cert.cnf.template ${CERT_DIR}SSL-cert.cnf
+	populate ${CERT_TEMPLATES}SSL-cert.ext.template ${CERT_DIR}SSL-cert.ext
 
     # Generate the .crt and .key certificates for SSL
 	generate_certs
