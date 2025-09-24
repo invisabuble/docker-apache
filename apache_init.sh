@@ -1,4 +1,9 @@
 #!/bin/bash
+set -euo pipefail
+
+# Always work from the directory of this script
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR"
 
 
 # Setup the SSL certificates for the apache webserver allowing the user to connect via https.
