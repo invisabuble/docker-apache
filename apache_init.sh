@@ -65,16 +65,16 @@ if [ ! -f ${CERT_DIR}/SSL-cert.key ] || [ ! -f ${CERT_DIR}/SSL-cert.crt ]; then
     # Create the site config from the template
     populate ${WEB_CONF_DIR}site.conf.template ${WEB_CONF_DIR}site.conf
 
-	echo -e "\033[01;91mNo SSL certificates detected."
+	echo -e "\033[01;91mNo SSL certificates detected.\033[0;0m"
 
     # Generate the .crt and .key certificates for SSL
 	generate_certs
 
 	if [ ! $? -eq 0 ]; then
-		echo -e "\033[01;91mFailed to generate SSL certificates."
+		echo -e "\033[01;91mFailed to generate SSL certificates.\033[0;0m"
 		exit
 	fi
 
-	echo -e "\033[01;36mEnsure you copy SSL-root.crt to your browsers CA store."
+	echo -e "\033[01;36mEnsure you copy SSL-root.crt to your browsers CA store.\033[0;0m"
 
 fi
