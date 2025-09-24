@@ -32,7 +32,6 @@ function generate_certs () {
 	openssl req -new -key ${CERT_DIR}SSL-cert.key -out ${CERT_DIR}SSL-cert.csr -config ${CERT_DIR}SSL-cert.cnf;
 	echo -e ".";
 	openssl x509 -req -in ${CERT_DIR}SSL-cert.csr -CA ${CERT_DIR}SSL-root.crt -CAkey ${CERT_DIR}SSL-root.key -CAcreateserial -out ${CERT_DIR}SSL-cert.crt -days 365 -sha256 -extfile ${CERT_DIR}SSL-cert.ext -passin pass:$MASTER_PASSWORD 2>&1;
-    echo -e "\nSSL certificates generated."
 }
 
 
@@ -66,7 +65,16 @@ if [ ! -f ${CERT_DIR}/SSL-cert.key ] || [ ! -f ${CERT_DIR}/SSL-cert.crt ]; then
     # Create the site config from the template
     populate ${WEB_CONF_DIR}site.conf.template ${WEB_CONF_DIR}site.conf
 
+	echo -e "\033[01;91mNo SSL certificates detected."
+
     # Generate the .crt and .key certificates for SSL
 	generate_certs
+
+	if [ ! $? -eq 0 ]; then
+		echo -e "\033[01;91mFailed to generate SSL certificates."
+		exit
+	fi
+
+	echo -e "\033[01;36mEnsure you copy SSL-root.crt to your browsers CA store."
 
 fi
