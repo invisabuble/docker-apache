@@ -95,7 +95,7 @@ if [ ! -d ${CERT_DIR} ]; then
     cp ${CERT_TEMPLATES}SSL-root.cnf ${CERT_DIR}SSL-root.cnf
 fi
 
-if [ ! -f ${CERT_DIR}/SSL-cert.key ] || [ ! -f ${CERT_DIR}/SSL-cert.crt ]; then
+if [ ! -f ${CERT_DIR}/SSL-root.key ] || [ ! -f ${CERT_DIR}/SSL-root.crt ]; then
 
     # Create SSL certificate cnf, ext files from the templates.
 	populate ${CERT_TEMPLATES}SSL-cert.cnf.template ${CERT_DIR}SSL-cert.cnf
