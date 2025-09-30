@@ -21,18 +21,41 @@ source apache.env
 
 
 function generate_certs () {
-	# Generate SSL certificates using the MASTER PASSWORD.
-	echo -ne "Generating SSL certificates .";
-	openssl genpkey -algorithm RSA -out ${CERT_DIR}SSL-root.key -aes256 -pass pass:$MASTER_PASSWORD -pkeyopt rsa_keygen_bits:4096 -quiet;
-	echo -ne ".";
-	openssl req -x509 -new -nodes -key ${CERT_DIR}SSL-root.key -sha256 -days 3650 -out ${CERT_DIR}SSL-root.crt -config ${CERT_DIR}SSL-root.cnf -passin pass:$MASTER_PASSWORD;
-	echo -ne ".";
-	openssl genpkey -algorithm RSA -out ${CERT_DIR}SSL-cert.key -pkeyopt rsa_keygen_bits:4096 -quiet;
-	echo -ne ".";
-	openssl req -new -key ${CERT_DIR}SSL-cert.key -out ${CERT_DIR}SSL-cert.csr -config ${CERT_DIR}SSL-cert.cnf;
-	echo -e ".";
-	openssl x509 -req -in ${CERT_DIR}SSL-cert.csr -CA ${CERT_DIR}SSL-root.crt -CAkey ${CERT_DIR}SSL-root.key -CAcreateserial -out ${CERT_DIR}SSL-cert.crt -days 365 -sha256 -extfile ${CERT_DIR}SSL-cert.ext -passin pass:$MASTER_PASSWORD 2>&1;
+    echo -ne "Generating SSL certificates ."
+
+    # Generate Root CA
+    openssl genpkey -algorithm RSA -out "${CERT_DIR}SSL-root.key" -aes256 -pass pass:$MASTER_PASSWORD -pkeyopt rsa_keygen_bits:4096 -quiet
+    echo -ne "."
+    openssl req -x509 -new -nodes -key "${CERT_DIR}SSL-root.key" -sha256 -days 3650 \
+        -out "${CERT_DIR}SSL-root.crt" -config "${CERT_DIR}SSL-root.cnf" -passin pass:$MASTER_PASSWORD
+    echo -ne "."
+
+    # Array of services
+    declare -A SERVICES=( ["apache"]="Apache" ["mysql"]="MySQL" ["overseer"]="Overseer" )
+
+    for NAME in "${!SERVICES[@]}"; do
+        # Generate private key for this service
+        openssl genpkey -algorithm RSA -out "${CERT_DIR}${NAME}.key" -pkeyopt rsa_keygen_bits:4096 -quiet
+        echo -ne "."
+
+        # Generate CSR
+        openssl req -new -key "${CERT_DIR}${NAME}.key" \
+            -out "${CERT_DIR}${NAME}.csr" \
+            -config "${CERT_DIR}SSL-cert.cnf" \
+            -subj "/CN=${SERVICES[$NAME]}"
+        echo -ne "."
+
+        # Sign CSR with Root CA
+        openssl x509 -req -in "${CERT_DIR}${NAME}.csr" \
+            -CA "${CERT_DIR}SSL-root.crt" -CAkey "${CERT_DIR}SSL-root.key" \
+            -CAcreateserial -out "${CERT_DIR}${NAME}.crt" -days 365 -sha256 \
+            -extfile "${CERT_DIR}SSL-cert.ext" -passin pass:$MASTER_PASSWORD 2>&1
+        echo -ne "."
+    done
+
+    echo -e "\nSSL certificates generated for Apache, MySQL, and Overseer."
 }
+
 
 
 function substitute_variables () {
