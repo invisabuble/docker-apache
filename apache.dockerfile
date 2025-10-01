@@ -11,8 +11,8 @@ RUN apt-get -y update && \
 RUN docker-php-ext-install pdo pdo_mysql
 
 # Copy in the SSL certificates.
-COPY ./docker-apache/web/private/certs/apache.key /etc/ssl/private/apache.key
-COPY ./docker-apache/web/private/certs/apache.crt /etc/ssl/certs/apache.crt
+COPY ./docker-apache/web/private/certs/apache-server.key /etc/ssl/private/apache.key
+COPY ./docker-apache/web/private/certs/apache-server.crt /etc/ssl/certs/apache.crt
 COPY ./docker-apache/web/private/certs/SSL-root.crt /etc/ssl/certs/SSL-root.crt
 
 # Copy in the site configuration.
