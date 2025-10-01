@@ -59,7 +59,7 @@ function generate_certs () {
         openssl req -new \
             -key "${CERT_DIR}${NAME}-server.key" \
             -out "${CERT_DIR}${NAME}-server.csr" \
-            -config "${CERT_DIR}SSL-cert.cnf" \
+            -config "${CERT_DIR}SSL-${NAME}.cnf" \
             -subj "/CN=${SERVICES[$NAME]} Server" > /dev/null 2>&1
         echo -ne "."
 
@@ -71,7 +71,7 @@ function generate_certs () {
             -CAcreateserial \
             -out "${CERT_DIR}${NAME}-server.crt" \
             -days 365 -sha256 \
-            -extfile "${CERT_DIR}SSL-cert.ext" \
+            -extfile "${CERT_DIR}SSL-${NAME}.ext" \
             -passin pass:$MASTER_PASSWORD > /dev/null 2>&1
         echo -ne "."
 
@@ -118,7 +118,7 @@ function substitute_variables () {
 function populate () {
 	# Copy and populate a template file with the server name and host ip.
 	cp "$1" "$2"
-	substitute_variables "\$SERVER_NAME" "$SERVER_NAME" "$2"
+	substitute_variables "\$SERVER_NAME" "$3" "$2"
 	substitute_variables "\$HOST_IP" "$HOST_IP" "$2"
 	substitute_variables "\$HOSTNAME" "$HOSTNAME" "$2"
 }
@@ -134,11 +134,23 @@ fi
 if [ ! -f ${CERT_DIR}/SSL-root.key ] || [ ! -f ${CERT_DIR}/SSL-root.crt ]; then
 
     # Create SSL certificate cnf, ext files from the templates.
-	populate ${CERT_TEMPLATES}SSL-cert.cnf.template ${CERT_DIR}SSL-cert.cnf
-	populate ${CERT_TEMPLATES}SSL-cert.ext.template ${CERT_DIR}SSL-cert.ext
+	populate ${CERT_TEMPLATES}SSL-cert.cnf.template ${CERT_DIR}SSL-cert.cnf $SERVER_NAME
+	populate ${CERT_TEMPLATES}SSL-cert.ext.template ${CERT_DIR}SSL-cert.ext $SERVER_NAME
+
+    # Create SSL certificate cnf, ext files for mysql.
+    populate ${CERT_TEMPLATES}SSL-cert.cnf.template ${CERT_DIR}SSL-mysql.cnf Overseer_DB
+	populate ${CERT_TEMPLATES}SSL-cert.ext.template ${CERT_DIR}SSL-mysql.ext Overseer_DB
+
+    # Create SSL certificate cnf, ext files for apache.
+    populate ${CERT_TEMPLATES}SSL-cert.cnf.template ${CERT_DIR}SSL-apache.cnf Overseer_FE
+	populate ${CERT_TEMPLATES}SSL-cert.ext.template ${CERT_DIR}SSL-apache.ext Overseer_FE
+
+    # Create SSL certificate cnf, ext files for overseer.
+    populate ${CERT_TEMPLATES}SSL-cert.cnf.template ${CERT_DIR}SSL-overseer.cnf Overseer
+	populate ${CERT_TEMPLATES}SSL-cert.ext.template ${CERT_DIR}SSL-overseer.ext Overseer
 
     # Create the site config from the template
-    populate ${WEB_CONF_DIR}site.conf.template ${WEB_CONF_DIR}site.conf
+    populate ${WEB_CONF_DIR}site.conf.template ${WEB_CONF_DIR}site.conf $SERVER_NAME
 
 	echo -e "\033[01;91mNo SSL certificates detected.\033[0;0m"
 
