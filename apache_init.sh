@@ -23,7 +23,9 @@ source apache.env
 function generate_certs () {
     echo -ne "Generating SSL certificates ."
 
+    # ==========================
     # Generate Root CA
+    # ==========================
     openssl genpkey -algorithm RSA \
         -out "${CERT_DIR}SSL-root.key" \
         -aes256 -pass pass:$MASTER_PASSWORD \
@@ -38,40 +40,73 @@ function generate_certs () {
         -passin pass:$MASTER_PASSWORD > /dev/null 2>&1
     echo -ne "."
 
-    # Array of services
     declare -A SERVICES=( ["apache"]="Apache" ["mysql"]="MySQL" ["overseer"]="Overseer" )
 
+    # ==========================
+    # Generate server & client certs for each service
+    # ==========================
     for NAME in "${!SERVICES[@]}"; do
-        # Generate private key for this service
+        # ----- Server certificate -----
+        echo -ne "\nGenerating server certificate for ${SERVICES[$NAME]} ..."
+
+        # Server private key
         openssl genpkey -algorithm RSA \
-            -out "${CERT_DIR}${NAME}.key" \
+            -out "${CERT_DIR}${NAME}-server.key" \
             -pkeyopt rsa_keygen_bits:4096 -quiet
         echo -ne "."
 
-        # Generate CSR
+        # Server CSR
         openssl req -new \
-            -key "${CERT_DIR}${NAME}.key" \
-            -out "${CERT_DIR}${NAME}.csr" \
+            -key "${CERT_DIR}${NAME}-server.key" \
+            -out "${CERT_DIR}${NAME}-server.csr" \
             -config "${CERT_DIR}SSL-cert.cnf" \
-            -subj "/CN=${SERVICES[$NAME]}" > /dev/null 2>&1
+            -subj "/CN=${SERVICES[$NAME]} Server" > /dev/null 2>&1
         echo -ne "."
 
-        # Sign CSR with Root CA
+        # Server signed certificate
         openssl x509 -req \
-            -in "${CERT_DIR}${NAME}.csr" \
+            -in "${CERT_DIR}${NAME}-server.csr" \
             -CA "${CERT_DIR}SSL-root.crt" \
             -CAkey "${CERT_DIR}SSL-root.key" \
             -CAcreateserial \
-            -out "${CERT_DIR}${NAME}.crt" \
+            -out "${CERT_DIR}${NAME}-server.crt" \
             -days 365 -sha256 \
             -extfile "${CERT_DIR}SSL-cert.ext" \
             -passin pass:$MASTER_PASSWORD > /dev/null 2>&1
         echo -ne "."
+
+        # ----- Client certificate -----
+        echo -ne "\nGenerating client certificate for ${SERVICES[$NAME]} ..."
+
+        # Client private key
+        openssl genpkey -algorithm RSA \
+            -out "${CERT_DIR}${NAME}-client.key" \
+            -pkeyopt rsa_keygen_bits:4096 -quiet
+        echo -ne "."
+
+        # Client CSR
+        openssl req -new \
+            -key "${CERT_DIR}${NAME}-client.key" \
+            -out "${CERT_DIR}${NAME}-client.csr" \
+            -config "${CERT_DIR}SSL-cert.cnf" \
+            -subj "/CN=${SERVICES[$NAME]} Client" > /dev/null 2>&1
+        echo -ne "."
+
+        # Client signed certificate
+        openssl x509 -req \
+            -in "${CERT_DIR}${NAME}-client.csr" \
+            -CA "${CERT_DIR}SSL-root.crt" \
+            -CAkey "${CERT_DIR}SSL-root.key" \
+            -CAcreateserial \
+            -out "${CERT_DIR}${NAME}-client.crt" \
+            -days 365 -sha256 \
+            -extfile "${CERT_DIR}SSL-client.ext" \
+            -passin pass:$MASTER_PASSWORD > /dev/null 2>&1
+        echo -ne "."
     done
 
-    echo -e "\nSSL certificates generated for Apache, MySQL, and Overseer."
+    echo -e "\nSSL certificates (server + client) generated for Apache, MySQL, and Overseer."
 }
-
 
 
 function substitute_variables () {
@@ -90,9 +125,10 @@ function populate () {
 
 
 if [ ! -d ${CERT_DIR} ]; then
-    # Create the certificate directory and copy the SSL-root.cnf to it.
+    # Create the certificate directory and copy the SSL-root.cnf, SSL-client.ext to it.
     mkdir ${CERT_DIR}
     cp ${CERT_TEMPLATES}SSL-root.cnf ${CERT_DIR}SSL-root.cnf
+	cp ${CERT_TEMPLATES}SSL-client.ext ${CERT_DIR}SSL-client.ext
 fi
 
 if [ ! -f ${CERT_DIR}/SSL-root.key ] || [ ! -f ${CERT_DIR}/SSL-root.crt ]; then
