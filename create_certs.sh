@@ -118,6 +118,10 @@ if [ ! -d "${CERT_DIR}root" ]; then
     generate_root_ca
 fi
 
+if [ ! -f "${WEB_CONF_DIR}site.conf" ]; then
+    populate ${WEB_CONF_DIR}site.conf.template ${WEB_CONF_DIR}site.conf
+fi
+
 if [ ! -d "${CERT_DIR}${1}" ]; then
 
 	echo -e "\033[01;91mNo ${1} certificates detected.\033[0;0m"
