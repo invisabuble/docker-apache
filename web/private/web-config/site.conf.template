@@ -12,11 +12,11 @@
     ServerAlias $HOSTNAME.local $HOST_IP
 
     SSLEngine on
-    SSLCertificateFile "/etc/ssl/certs/apache.crt"
-    SSLCertificateKeyFile "/etc/ssl/private/apache.key"
+    SSLCertificateFile "/certs/apache/apache.crt"
+    SSLCertificateKeyFile "/certs/apache/apache.key"
 
     # Include the CA bundle
-    SSLCertificateChainFile "/etc/ssl/certs/SSL-root.crt"
+    SSLCertificateChainFile "/certs/root/SSL-root.crt"
 
     # Enable HSTS (Optional, for security)
     Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
