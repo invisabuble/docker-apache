@@ -42,6 +42,10 @@ function generate_root_ca () {
         -passin pass:$MASTER_PASSWORD > /dev/null 2>&1
     echo -e "."
 
+    # Set the certificate permissions.
+    chmod 644 ${CERT_DIR}root/SSL-root.crt
+    chmod 600 ${CERT_DIR}root/SSL-root.key
+
 }
 
 
@@ -83,6 +87,10 @@ function generate_service_cert () {
         -passin pass:$MASTER_PASSWORD > /dev/null 2>&1
     echo -ne "."
 
+    # Set the server certificate permissions.
+    chmod 644 ${CERT_DIR}${1}/${1}-server.crt
+    chmod 600 ${CERT_DIR}${1}/${1}-server.key
+
     # ----- Client certificate -----
     echo -ne "\nGenerating client certificate for ${1} ."
 
@@ -111,6 +119,11 @@ function generate_service_cert () {
         -extfile "${CERT_DIR}root/SSL-root.ext" \
         -passin pass:$MASTER_PASSWORD > /dev/null 2>&1
     echo -e "."
+
+    # Set the client certificate permissions.
+    chmod 644 ${CERT_DIR}${1}/${1}-client.crt
+    chmod 600 ${CERT_DIR}${1}/${1}-client.key
+
 }
 
 if [ ! -d "${CERT_DIR}root" ]; then

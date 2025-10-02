@@ -12,8 +12,8 @@
     ServerAlias $HOSTNAME.local $HOST_IP
 
     SSLEngine on
-    SSLCertificateFile "/certs/apache/apache.crt"
-    SSLCertificateKeyFile "/certs/apache/apache.key"
+    SSLCertificateFile "/certs/apache/apache-server.crt"
+    SSLCertificateKeyFile "/certs/apache/apache-server.key"
 
     # Include the CA bundle
     SSLCertificateChainFile "/certs/root/SSL-root.crt"
