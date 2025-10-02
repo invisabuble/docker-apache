@@ -14,11 +14,6 @@ source apache.env
 # If no URL is set then set the SERVER_NAME to the HOST_IP otherwise set it to the URL.
 [ "$URL" == "" ] && SERVER_NAME=$HOST_IP || SERVER_NAME=$URL
 
-if [ ! -d "${CERT_DIR}/root" ]; then
-    # Create the root CA.
-    generate_root_ca
-fi
-
 ./create_certs "overseer" "Overseer"
 ./create_certs "apache" "Overseer_FE"
 ./create_certs "mysql" "Overseer_DB"

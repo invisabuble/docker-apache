@@ -110,6 +110,11 @@ function generate_service_cert () {
     echo -ne "."
 }
 
+if [ ! -d "${CERT_DIR}/root" ]; then
+    # Create the root CA.
+    generate_root_ca
+fi
+
 if [ ! -d "${CERT_DIR}/${1}" ]; then
 
 	echo -e "\033[01;91mNo ${1} certificates detected.\033[0;0m"
