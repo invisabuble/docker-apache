@@ -2,10 +2,14 @@
 # Pull the php apache image.
 FROM php:7.4-apache
 
-# Update and upgrade the container.
-RUN apt-get -y update && \
-    apt-get -y upgrade && \
-    rm -rf /var/lib/apt/lists/*
+# Install libraries and PHP extensions
+RUN apt-get update && \
+    apt-get install -y \
+        libssl-dev \
+        default-mysql-client \
+    && docker-php-ext-install pdo_mysql \
+    && docker-php-ext-install openssl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install dependencies for php.
 RUN docker-php-ext-install pdo pdo_mysql
