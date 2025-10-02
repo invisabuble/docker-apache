@@ -1,5 +1,8 @@
 source apache.env
 
+# If no URL is set then set the SERVER_NAME to the HOST_IP otherwise set it to the URL.
+[ "$URL" == "" ] && SERVER_NAME=$HOST_IP || SERVER_NAME=$URL
+
 function substitute_variables () {
 	# Substitute key $1 for value $2 within file $3.
 	sed -i "s|$1|$2|g" "$3"
