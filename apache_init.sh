@@ -14,6 +14,8 @@ source apache.env
 # If no URL is set then set the SERVER_NAME to the HOST_IP otherwise set it to the URL.
 [ "$URL" == "" ] && SERVER_NAME=$HOST_IP || SERVER_NAME=$URL
 
-./create_certs "overseer" "Overseer"
-./create_certs "apache" "Overseer_FE"
-./create_certs "mysql" "Overseer_DB"
+mkdir ${CERT_DIR}
+
+./create_certs.sh "overseer" "Overseer"
+./create_certs.sh "apache" "Overseer_FE"
+./create_certs.sh "mysql" "Overseer_DB"
