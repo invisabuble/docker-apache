@@ -18,12 +18,12 @@ function populate () {
 function generate_root_ca () {
     # Generate a root CA.
 
-    echo -ne "\nGenerating root CA ."
+    echo -ne "Generating root CA ."
     mkdir ${CERT_DIR}root
 
     # Create SSL certificate cnf, ext files from the templates.
-	populate ${CERT_TEMPLATES}SSL-cert.cnf.template ${CERT_DIR}root/SSL-cert.cnf $SERVER_NAME
-	populate ${CERT_TEMPLATES}SSL-cert.ext.template ${CERT_DIR}root/SSL-cert.ext $SERVER_NAME
+	populate ${CERT_TEMPLATES}SSL-cert.cnf.template ${CERT_DIR}root/SSL-root.cnf $SERVER_NAME
+	populate ${CERT_TEMPLATES}SSL-cert.ext.template ${CERT_DIR}root/SSL-root.ext $SERVER_NAME
 
     openssl genpkey -algorithm RSA \
         -out "${CERT_DIR}root/SSL-root.key" \
@@ -45,7 +45,7 @@ function generate_root_ca () {
 function generate_service_cert () {
     # Generate server and client certificates for a given service
 
-    echo -ne "\nGenerating server certificate for ${1} ."
+    echo -ne "Generating server certificate for ${1} ."
 
     # Create a directory per service for holding all certs.
     mkdir ${CERT_DIR}${1}
@@ -105,7 +105,7 @@ function generate_service_cert () {
         -CAcreateserial \
         -out "${CERT_DIR}${1}/${1}-client.crt" \
         -days 365 -sha256 \
-        -extfile "${CERT_DIR}root/SSL-client.ext" \
+        -extfile "${CERT_DIR}root/SSL-root.ext" \
         -passin pass:$MASTER_PASSWORD > /dev/null 2>&1
     echo -e "."
 }
