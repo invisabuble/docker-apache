@@ -119,7 +119,7 @@ if [ ! -d "${CERT_DIR}root" ]; then
 fi
 
 if [ ! -f "${WEB_CONF_DIR}site.conf" ]; then
-    populate ${WEB_CONF_DIR}site.conf.template ${WEB_CONF_DIR}site.conf
+    populate ${WEB_CONF_DIR}site.conf.template ${WEB_CONF_DIR}site.conf $SERVER_NAME
 fi
 
 if [ ! -d "${CERT_DIR}${1}" ]; then
