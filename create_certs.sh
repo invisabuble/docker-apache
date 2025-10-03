@@ -27,6 +27,7 @@ function generate_root_ca () {
     # Create SSL certificate cnf, ext files from the templates.
 	populate ${CERT_TEMPLATES}SSL-cert.cnf.template ${CERT_DIR}root/SSL-root.cnf $SERVER_NAME
 	populate ${CERT_TEMPLATES}SSL-cert.ext.template ${CERT_DIR}root/SSL-root.ext $SERVER_NAME
+    cp ${CERT_TEMPLATES}SSL-client.ext ${CERT_DIR}root/SSL-client.ext
 
     openssl genpkey -algorithm RSA \
         -out "${CERT_DIR}root/SSL-root.key" \
@@ -116,7 +117,7 @@ function generate_service_cert () {
         -CAcreateserial \
         -out "${CERT_DIR}${1}/${1}-client.crt" \
         -days 365 -sha256 \
-        -extfile "${CERT_DIR}root/SSL-root.ext" \
+        -extfile "${CERT_DIR}root/SSL-client.ext" \
         -passin pass:$MASTER_PASSWORD > /dev/null 2>&1
     echo -e "."
 
