@@ -11,9 +11,6 @@ grep -q "^HOST_IP=" apache.env || echo -e "\nHOST_IP=$(hostname -I | awk '{print
 
 source apache.env
 
-# If no URL is set then set the SERVER_NAME to the HOST_IP otherwise set it to the URL.
-[ "$URL" == "" ] && SERVER_NAME=$HOST_IP || SERVER_NAME=$URL
-
 mkdir ${CERT_DIR}
 
 ./create_certs.sh "overseer" "Overseer"
